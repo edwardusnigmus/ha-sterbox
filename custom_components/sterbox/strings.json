@@ -1,0 +1,31 @@
+{
+  "title": "Sterbox",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Dodaj Sterbox",
+        "description": "Zmiennymi zarządzasz przez kartę Sterbox Variables po dodaniu integracji.",
+        "data": {
+          "name": "Nazwa (np. Dom, Garaż)",
+          "host": "Adres IP (np. 10.1.0.181)",
+          "password": "Hasło autoryzacji",
+          "interval": "Interwał odczytu w sekundach (1–60)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Edytuj urządzenie",
+        "description": "Zmiennymi zarządzasz przez kartę Sterbox Variables.",
+        "data": {
+          "name": "Nazwa",
+          "host": "Adres IP",
+          "password": "Hasło",
+          "interval": "Interwał (sekundy)"
+        }
+      }
+    }
+  }
+}
