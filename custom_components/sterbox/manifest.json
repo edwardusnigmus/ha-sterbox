@@ -1,7 +1,7 @@
 {
   "domain": "sterbox",
   "name": "Sterbox",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "requirements": [],
   "dependencies": [
     "http",
@@ -14,7 +14,6 @@
   "iot_class": "local_polling",
   "config_flow": true,
   "integration_type": "device",
-  "homeassistant": "2024.1.0",
   "documentation": "https://github.com/edwardusnigmus/ha-sterbox",
   "issue_tracker": "https://github.com/edwardusnigmus/ha-sterbox/issues"
 }

@@ -4,7 +4,8 @@ import logging
 import os
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv, ServiceCall
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.components import panel_custom
@@ -24,6 +25,8 @@ def _get_version() -> str:
 from .coordinator import SterboxCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 PANEL_URL    = f"/{DOMAIN}_panel"
 PANEL_FILE   = "sterbox-panel.js"

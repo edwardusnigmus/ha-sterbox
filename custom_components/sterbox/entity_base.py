@@ -12,7 +12,7 @@ def build_device_info(entry_id: str, instance_name: str, host: str) -> DeviceInf
         name=instance_name,
         manufacturer="ENIGMA",
         model="Sterbox HA API Integration",
-        sw_version="1.0.0",
+        sw_version="1.0.2",
         configuration_url=f"http://{host}",
     )
 
