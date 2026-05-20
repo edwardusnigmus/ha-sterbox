@@ -20,7 +20,7 @@ def _device_schema(defaults: dict = {}) -> vol.Schema:
     return vol.Schema({
         vol.Required(CONF_NAME, default=defaults.get(CONF_NAME, "Sterbox")): str,
         vol.Required(CONF_HOST, default=defaults.get(CONF_HOST, "")): str,
-        vol.Required(CONF_PASSWORD, default=defaults.get(CONF_PASSWORD, "")): str,
+        vol.Optional(CONF_PASSWORD, default=defaults.get(CONF_PASSWORD, "")): str,
         vol.Optional(CONF_INTERVAL_HIGH,
             default=defaults.get(CONF_INTERVAL_HIGH, DEFAULT_INTERVAL_HIGH)
         ): vol.All(int, vol.Range(min=1, max=60)),

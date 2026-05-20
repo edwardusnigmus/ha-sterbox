@@ -180,10 +180,12 @@ class SterboxCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _proactive_reauth(self) -> None:
         """
         Co reauth_interval minut odświeża sesję zanim Sterbox ją zerwie.
-        Działa jako task w tle — nie blokuje odczytów.
+        Pomija autoryzację jeśli hasło nie jest ustawione.
         """
         while True:
             await asyncio.sleep(self._reauth_interval * 60)
+            if not self.password:
+                continue  # brak hasła = brak potrzeby re-auth
             _LOGGER.debug("[%s] Proactive re-auth", self.host)
             self._authenticated    = False
             self._last_auth_reason = "proactive"
@@ -208,6 +210,10 @@ class SterboxCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return False
 
     async def _ensure_authenticated(self) -> bool:
+        # Brak hasła = brak autoryzacji wymaganej
+        if not self.password:
+            self._authenticated = True
+            return True
         if self._authenticated:
             return True
         async with self._auth_lock:
@@ -356,6 +362,12 @@ class SterboxCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "error_response":   "Błąd odpowiedzi Sterboxa",
             "connection_error": "Błąd połączenia",
         }
+        if not self.password:
+            return {
+                "last_auth_time":   None,
+                "last_auth_reason": "Brak hasła — autoryzacja wyłączona",
+                "auth_count":       0,
+            }
         return {
             "last_auth_time":   self._last_auth_time.strftime("%H:%M:%S %d.%m") if self._last_auth_time else None,
             "last_auth_reason": reason_labels.get(self._last_auth_reason, self._last_auth_reason),
