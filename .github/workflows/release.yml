@@ -1,0 +1,32 @@
+name: "Release"
+
+on:
+  release:
+    types: [published, prereleased]
+
+permissions: {}
+
+jobs:
+  release:
+    name: "Release"
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: write
+    steps:
+      - name: "Checkout the repository"
+        uses: actions/checkout@v4
+
+      - name: "Create ZIP with integration"
+        shell: bash
+        run: |
+          mkdir -p dist
+          zip -r "dist/sterbox.zip" \
+            custom_components/sterbox \
+            hacs.json \
+            README.md \
+            LICENSE
+
+      - name: "Upload sterbox.zip to release"
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/sterbox.zip
