@@ -1,19 +1,19 @@
 {
   "domain": "sterbox",
   "name": "Sterbox",
-  "version": "1.0.2",
-  "requirements": [],
+  "codeowners": [
+    "@edwardusnigmus"
+  ],
+  "config_flow": true,
   "dependencies": [
     "http",
     "frontend",
     "panel_custom"
   ],
-  "codeowners": [
-    "@edwardusnigmus"
-  ],
-  "iot_class": "local_polling",
-  "config_flow": true,
-  "integration_type": "device",
   "documentation": "https://github.com/edwardusnigmus/ha-sterbox",
-  "issue_tracker": "https://github.com/edwardusnigmus/ha-sterbox/issues"
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/edwardusnigmus/ha-sterbox/issues",
+  "requirements": [],
+  "version": "1.0.2"
 }
