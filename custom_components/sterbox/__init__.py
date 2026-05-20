@@ -5,7 +5,7 @@ import os
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv, ServiceCall
+from homeassistant.helpers import config_validation as cv
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.components import panel_custom
