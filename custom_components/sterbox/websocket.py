@@ -1,6 +1,7 @@
 """WebSocket API dla panelu Sterbox."""
 from __future__ import annotations
 import logging
+import os
 from typing import Any
 import voluptuous as vol
 from homeassistant.components import websocket_api
@@ -23,6 +24,17 @@ def async_setup(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_test_connection)
     websocket_api.async_register_command(hass, ws_write_value)
     websocket_api.async_register_command(hass, ws_update_groups)
+
+
+def _get_integration_version() -> str:
+    """Czyta wersję z manifest.json."""
+    try:
+        import json as _json
+        path = os.path.join(os.path.dirname(__file__), "manifest.json")
+        with open(path) as f:
+            return _json.load(f).get("version", "unknown")
+    except Exception:
+        return "unknown"
 
 
 def _get_auth_stats(hass: HomeAssistant, entry_id: str) -> dict:
@@ -85,6 +97,7 @@ async def ws_get_instances(
             "groups":          config.get(CONF_GROUPS, []),
             "current_data":    _get_current_data(hass, entry.entry_id),
             "auth_stats":      _get_auth_stats(hass, entry.entry_id),
+            "version":         _get_integration_version(),
         })
     connection.send_result(msg["id"], {"instances": result})
 

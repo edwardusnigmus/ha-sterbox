@@ -17,7 +17,8 @@ from .const import (
     CIRCUIT_GCD, CIRCUIT_SCD,
     CONF_HOST, CONF_NAME, CONF_VARS, DOMAIN,
     ENTITY_COVER,
-    VAR_COVER_DEVICE_CLASS, VAR_COVER_DOWN, VAR_COVER_STATE_DN, VAR_COVER_STATE_UP,
+    VAR_COVER_DEVICE_CLASS, VAR_COVER_DOWN, VAR_COVER_FB_DN, VAR_COVER_FB_UP,
+    VAR_COVER_STATE_DN, VAR_COVER_STATE_UP,
     VAR_COVER_STOP, VAR_COVER_UP, VAR_COVER_VAL_DOWN,
     VAR_COVER_VAL_STOP, VAR_COVER_VAL_UP,
     VAR_ENTITY_TYPE, VAR_NAME,
@@ -73,6 +74,8 @@ class SterboxCover(CoordinatorEntity[SterboxCoordinator], CoverEntity):
         self._val_stop = int(var_config.get(VAR_COVER_VAL_STOP, 1))
 
         self._moving: str | None = None
+        self._fb_up = var_config.get(VAR_COVER_FB_UP, "")
+        self._fb_dn = var_config.get(VAR_COVER_FB_DN, "")
 
         # device_class z konfiguracji — domyślnie blind (roleta)
         dc_map = {
@@ -122,12 +125,22 @@ class SterboxCover(CoordinatorEntity[SterboxCoordinator], CoverEntity):
     def is_opening(self) -> bool:
         if self.is_open:
             return False
+        # Feedback z PLC — przekaźnik góra aktywny
+        if self._fb_up and self.coordinator.data:
+            val = self.coordinator.data.get(f"{self._name}_fb_up")
+            if val is not None:
+                return bool(int(val))
         return self._moving == "opening"
 
     @property
     def is_closing(self) -> bool:
         if self.is_closed:
             return False
+        # Feedback z PLC — przekaźnik dół aktywny
+        if self._fb_dn and self.coordinator.data:
+            val = self.coordinator.data.get(f"{self._name}_fb_dn")
+            if val is not None:
+                return bool(int(val))
         return self._moving == "closing"
 
     @property

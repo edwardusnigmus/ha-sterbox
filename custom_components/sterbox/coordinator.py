@@ -16,7 +16,7 @@ from .const import (
     DEFAULT_MAX_CONNECTION_RETRIES, DEFAULT_REAUTH_INTERVAL, DEFAULT_REST_DELAY, DEFAULT_TIMEOUT,
     DOMAIN, ENTITY_COVER, ENTITY_SWITCH_FB, MAX_VARS_PER_REQUEST,
     PRIORITY_DEFAULT, PRIORITY_HIGH, PRIORITY_LOW, PRIORITY_MEDIUM,
-    VAR_CIRCUIT, VAR_COVER_STATE_DN, VAR_COVER_STATE_UP,
+    VAR_CIRCUIT, VAR_COVER_FB_DN, VAR_COVER_FB_UP, VAR_COVER_STATE_DN, VAR_COVER_STATE_UP,
     VAR_ENTITY_TYPE, VAR_FEEDBACK_QUERY, VAR_NAME, VAR_PRIORITY,
     VAR_QUERY, VAR_COVER_UP, VAR_COVER_DOWN, READ_CIRCUITS,
 )
@@ -62,6 +62,12 @@ def _extract_read_vars(all_vars: list[dict]) -> dict[str, list[dict]]:
             if var.get(VAR_COVER_STATE_DN):
                 _add(CIRCUIT_GCD, var[VAR_COVER_STATE_DN],
                      f"{var[VAR_NAME]}_state_dn", priority)
+            if var.get(VAR_COVER_FB_UP):
+                _add(CIRCUIT_GCD, var[VAR_COVER_FB_UP],
+                     f"{var[VAR_NAME]}_fb_up", priority)
+            if var.get(VAR_COVER_FB_DN):
+                _add(CIRCUIT_GCD, var[VAR_COVER_FB_DN],
+                     f"{var[VAR_NAME]}_fb_dn", priority)
         elif etype == ENTITY_SWITCH_FB:
             fb = var.get(VAR_FEEDBACK_QUERY, "")
             if fb:
@@ -169,8 +175,9 @@ class SterboxCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def start_reauth_task(self) -> None:
         """Uruchom proaktywny re-auth jeśli włączony."""
         if self._reauth_interval > 0:
-            self._reauth_task = self.hass.async_create_task(
-                self._proactive_reauth()
+            self._reauth_task = self.hass.async_create_background_task(
+                self._proactive_reauth(),
+                name=f"sterbox_reauth_{self.host}",
             )
             _LOGGER.info(
                 "[%s] Proactive re-auth every %d min",

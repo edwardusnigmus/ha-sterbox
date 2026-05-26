@@ -156,6 +156,7 @@ class SterboxPanel extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this._hass      = null;
     this._instances = [];
+    this._version   = "?";
     this._selected  = null;
     this._view      = "vars";
     this._editVar   = null;
@@ -206,6 +207,10 @@ class SterboxPanel extends HTMLElement {
     try {
       const res = await this._hass.callWS({ type: "sterbox/get_instances" });
       this._instances = res.instances || [];
+      // Pobierz wersję z pierwszej instancji
+      if (this._instances.length > 0 && this._instances[0].version) {
+        this._version = this._instances[0].version;
+      }
 
       if (this._instances.length) {
         // Przywróć poprzednio wybraną instancję lub wybierz pierwszą
@@ -241,7 +246,7 @@ class SterboxPanel extends HTMLElement {
                       unit:"", min:0, max:100, step:1, button_value:1,
                       device_class:"", state_class:"measurement",
                       // cover fields
-                      up:"", down:"", stop:"", state_up:"", state_dn:"", val_up:1, val_down:1, val_stop:1, cover_device_class:"blind", icon:"", feedback_query:"", feedback_timeout:5, priority:"high", group:"", number_mode:"slider", entity_id_suffix:"", precision:2 };
+                      up:"", down:"", stop:"", state_up:"", state_dn:"", val_up:1, val_down:1, val_stop:1, cover_device_class:"blind", icon:"", fb_up:"", fb_dn:"", feedback_query:"", feedback_timeout:5, priority:"high", group:"", number_mode:"slider", entity_id_suffix:"", precision:2 };
     this._editIdx = -1;
     this._render();
   }
@@ -294,6 +299,8 @@ class SterboxPanel extends HTMLElement {
         val_down:          parseInt(v.val_down) || 1,
         val_stop:          parseInt(v.val_stop) || 1,
         cover_device_class: v.cover_device_class || "blind",
+        fb_up:             v.fb_up  || "",
+        fb_dn:             v.fb_dn  || "",
         priority:          _priority,
         group:             _group,
       };
@@ -632,7 +639,7 @@ tr:hover .acts{opacity:1}
       <div class="footer">
         <div style="margin-bottom:6px"><img src="/sterbox_panel/icon.png" width="32" height="32" style="border-radius:6px"></div>
         <div class="footer-v">Sterbox HA API Integration</div>
-        <div style="font-size:10px;color:var(--secondary-text-color);margin-bottom:2px">v1.0.3</div>
+        <div style="font-size:10px;color:var(--secondary-text-color);margin-bottom:2px">${this._version||"?"}</div>
         <div class="footer-by">by ENIGMA</div>
         <a class="footer-link" href="https://github.com/edwardusnigmus/ha-sterbox" target="_blank">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
@@ -989,7 +996,7 @@ Zwiększ aby uniknąć chwilowego unavailable podczas re-auth (2-5s).">?</span><
         </details>
 
         <div style="margin-top:20px;padding:12px 32px;background:var(--secondary-background-color);border-top:1px solid var(--divider-color);font-size:12px;color:var(--secondary-text-color);width:100%;box-sizing:border-box;margin-left:-32px">
-          Sterbox HA API Integration v1.0.3 · by ENIGMA ·
+          Sterbox HA API Integration ${this._version||"?"} · by ENIGMA ·
           <a href="https://github.com/edwardusnigmus/ha-sterbox" target="_blank" style="color:var(--primary-color)">GitHub</a>
         </div>
 
@@ -1162,6 +1169,16 @@ Można zmienić ręcznie w Ustawienia → Encje.">?</span>
         <div class="field"><label>Krańcówka dół</label>
           <input type="text" id="f-cdn-s" value="${v.state_dn||""}" placeholder="np. ro1dns (opcjonalne)">
           <span class="hint">@gcd — 1 gdy roleta w dolnej pozycji</span>
+        </div>
+        <div class="field"><label>Feedback otwierania <span class="tip" data-tip="@gcd — 1 gdy przekaźnik góra aktywny.
+HA pokazuje animację otwierania.
+Fallback: stan lokalny po kliknięciu ▲.">?</span></label>
+          <input type="text" id="f-fbu" value="${v.fb_up||""}" placeholder="np. ro1up_fb (opcjonalne)">
+        </div>
+        <div class="field"><label>Feedback zamykania <span class="tip" data-tip="@gcd — 1 gdy przekaźnik dół aktywny.
+HA pokazuje animację zamykania.
+Fallback: stan lokalny po kliknięciu ▼.">?</span></label>
+          <input type="text" id="f-fbd" value="${v.fb_dn||""}" placeholder="np. ro1dn_fb (opcjonalne)">
         </div>
         ` : `
 
@@ -1567,6 +1584,8 @@ ${inUse} zmiennych trafi do "Bez grupy".`
 
     // Cover fields
     $("f-cdc")?.addEventListener("change",  e => this._editVar.cover_device_class = e.target.value);
+    $("f-fbu")?.addEventListener("input",   e => this._editVar.fb_up              = e.target.value);
+    $("f-fbd")?.addEventListener("input",   e => this._editVar.fb_dn              = e.target.value);
     $("f-cup")?.addEventListener("input",   e => this._editVar.up       = e.target.value);
     $("f-cdn")?.addEventListener("input",   e => this._editVar.down     = e.target.value);
     $("f-cstp")?.addEventListener("input",  e => this._editVar.stop     = e.target.value);

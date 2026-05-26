@@ -1,5 +1,7 @@
 """Bazowa klasa encji Sterboxa — DeviceInfo, unique_id oparty o circuit+query."""
 from __future__ import annotations
+import json
+import os
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
@@ -12,7 +14,7 @@ def build_device_info(entry_id: str, instance_name: str, host: str) -> DeviceInf
         name=instance_name,
         manufacturer="ENIGMA",
         model="Sterbox HA API Integration",
-        sw_version="1.0.3",
+        sw_version=_get_manifest_version(),
         configuration_url=f"http://{host}",
     )
 
@@ -28,6 +30,16 @@ def build_unique_id(entry_id: str, circuit: str, query: str) -> str:
     """
     query_slug = query.lower().replace(" ", "_")
     return f"sterbox_{entry_id}_{circuit}_{query_slug}"
+
+
+def _get_manifest_version() -> str:
+    """Czyta wersję z manifest.json."""
+    try:
+        path = os.path.join(os.path.dirname(__file__), "manifest.json")
+        with open(path) as f:
+            return json.load(f).get("version", "unknown")
+    except Exception:
+        return "unknown"
 
 
 class SterboxEntity(CoordinatorEntity[SterboxCoordinator]):
