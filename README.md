@@ -10,7 +10,7 @@ Natywna integracja sterownika PLC **Sterbox** dla Home Assistant.
 
 - Odczyt zmiennych analogowych (`@gca` → `sensor`) i cyfrowych (`@gcd` → `binary_sensor`)
 - Zapis cyfrowy (`@scd` → `switch`, `switch_fb`, `button`) i analogowy (`@sca` → `number`)
-- Rolety (`cover`) z obsługą krańcówek, stanów opening/closing i wyborem typu (blind/shutter/curtain...)
+- Rolety (`cover`) z pełną obsługą stanów: krańcówki + feedback ruchu (animacja otwierania/zamykania)
 - Switch z feedbackiem — stan zawsze aktualny z PLC, reaguje na fizyczne włączniki
 - Panel boczny do zarządzania zmiennymi bez edycji YAML
 - Priorytety odpytywania (wysoki/średni/niski) z osobnymi interwałami
@@ -18,6 +18,7 @@ Natywna integracja sterownika PLC **Sterbox** dla Home Assistant.
 - Import/Export konfiguracji JSON
 - Proaktywne odświeżanie sesji HTTP (zapobiega wygasaniu sesji)
 - Tolerancja błędów — encje nie stają się niedostępne przy krótkich przerwach
+- Hasło opcjonalne — Sterboxy bez autoryzacji działają od razu
 - Obsługa wielu instancji Sterboxa
 
 ## Instalacja przez HACS
@@ -45,7 +46,20 @@ Po dodaniu integracji panel boczny **Sterbox** pojawia się automatycznie w menu
 | `@scd` | `switch_fb` | Zapis cyfrowy + potwierdzenie stanu z `@gcd` |
 | `@scd` | `button` | Jednorazowy impuls (0/1/2=toggle) |
 | `@sca` | `number` | Zapis analogowy — suwak lub pole tekstowe |
-| — | `cover` | Roleta — sterowanie góra/dół + krańcówki |
+| — | `cover` | Roleta — pełna obsługa stanów |
+
+### Konfiguracja rolety
+
+Roleta obsługuje cztery opcjonalne sygnały zwrotne z PLC:
+
+| Pole | Obwód | Efekt w HA |
+|------|-------|------------|
+| Krańcówka góra | `@gcd` | Ikona 🔓 gdy roleta na górze |
+| Krańcówka dół | `@gcd` | Ikona 🔒 gdy roleta na dole |
+| Feedback otwierania | `@gcd` | Animacja ⬆ Otwieranie... podczas ruchu |
+| Feedback zamykania | `@gcd` | Animacja ⬇ Zamykanie... podczas ruchu |
+
+Bez feedbacku — stan lokalny (kliknięcie przycisku). Z feedbackiem — stan w czasie rzeczywistym z PLC.
 
 ### Priorytety odpytywania
 

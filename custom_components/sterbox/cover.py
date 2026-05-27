@@ -123,24 +123,28 @@ class SterboxCover(CoordinatorEntity[SterboxCoordinator], CoverEntity):
 
     @property
     def is_opening(self) -> bool:
-        if self.is_open:
+        # Jeśli krańcówka góra aktywna — nie otwiera się
+        if self._read_state("state_up"):
             return False
-        # Feedback z PLC — przekaźnik góra aktywny
+        # Feedback z PLC — przekaźnik góra aktywny (priorytet nad stanem lokalnym)
         if self._fb_up and self.coordinator.data:
             val = self.coordinator.data.get(f"{self._name}_fb_up")
             if val is not None:
                 return bool(int(val))
+        # Fallback lokalny
         return self._moving == "opening"
 
     @property
     def is_closing(self) -> bool:
-        if self.is_closed:
+        # Jeśli krańcówka dół aktywna — nie zamyka się
+        if self._read_state("state_dn"):
             return False
-        # Feedback z PLC — przekaźnik dół aktywny
+        # Feedback z PLC — przekaźnik dół aktywny (priorytet nad stanem lokalnym)
         if self._fb_dn and self.coordinator.data:
             val = self.coordinator.data.get(f"{self._name}_fb_dn")
             if val is not None:
                 return bool(int(val))
+        # Fallback lokalny
         return self._moving == "closing"
 
     @property

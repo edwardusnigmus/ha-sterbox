@@ -952,9 +952,24 @@ Zwiększ aby uniknąć chwilowego unavailable podczas re-auth (2-5s).">?</span><
             Roleta wymaga zdefiniowania obwodów sterowania i opcjonalnych krańcówek:<br><br>
             <b>Obwód góra/dół</b> — @scd, wartość 0/1/2 (toggle) wysyłana przy kliknięciu ▲/▼<br>
             <b>Obwód stop</b> — opcjonalny, zatrzymuje roletę<br>
-            <b>Krańcówka góra/dół</b> — @gcd, coordinator odczytuje stan i aktualizuje ikonę rolety<br><br>
-            Bez krańcówek: stan rolety jest nieznany (❓), przyciski zawsze aktywne (<i>assumed_state</i>).<br>
-            Z krańcówkami: ikona zmienia się automatycznie gdy roleta osiągnie pozycję krańcową.
+            <b>Krańcówka góra/dół</b> — @gcd, 1 gdy roleta w pozycji krańcowej. Aktualizuje ikonę 🔓/🔒.<br>
+            <b>Feedback otwierania/zamykania</b> — @gcd, 1 gdy przekaźnik ruchu aktywny.<br>
+            HA pokazuje animację ⬆ Otwieranie... / ⬇ Zamykanie... w czasie rzeczywistym.<br><br>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:4px">
+              <tr style="background:var(--secondary-background-color)">
+                <th style="padding:5px 8px;text-align:left">Pole</th>
+                <th style="padding:5px 8px;text-align:left">Typ</th>
+                <th style="padding:5px 8px;text-align:left">Efekt w HA</th>
+              </tr>
+              ${[
+                ["Krańcówka góra","@gcd","Ikona 🔓 gdy na górze"],
+                ["Krańcówka dół","@gcd","Ikona 🔒 gdy na dole"],
+                ["Feedback otwierania","@gcd","Animacja ⬆ podczas ruchu w górę"],
+                ["Feedback zamykania","@gcd","Animacja ⬇ podczas ruchu w dół"],
+              ].map(([f,t,e])=>`<tr><td style="padding:4px 8px">${f}</td><td style="padding:4px 8px"><code>${t}</code></td><td style="padding:4px 8px;color:var(--secondary-text-color)">${e}</td></tr>`).join("")}
+            </table><br>
+            Bez krańcówek: stan nieznany (❓), przyciski zawsze aktywne (<i>assumed_state</i>).<br>
+            Feedback bez krańcówek: animacja działa, ale stan końcowy nieznany.
           </div>
         </details>
 
